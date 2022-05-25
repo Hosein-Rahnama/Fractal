@@ -1,13 +1,13 @@
 
-// Multi Time Frame (MTF) Fractal Indicator
+// Single Time Frame (STF) Fractal Indicator
 
 // Include required header files.
-#include <Fractal Utilities.mqh>
+#include <Fractal-Utilities.mqh>
 
 #property copyright "Developed by Hosein Rahnama"
 #property link "https://www.mql5.com/en/users/hosein.rahnama"
 #property version "1.3"
-#property description "This indicator identifies fractals of a specified time frame within a neighborhood."
+#property description "This indicator identifies fractals within a neighborhood."
 #property description "The neighborhood has a radius which represents the number of candles to each side of the fractal candle."
 #property description "The high or low of the fractal candle is a local extremum within this neighborhood."
 
@@ -49,18 +49,14 @@ double downFractal[];
 bool onCalculateFirstCall = true;
 
 // Default values for input parameters are set.
-input int inputRadius = 2;                                       // Radius
-input int inputYShift = 10;                                      // Arrow Offset in Pixels
-input ENUM_SHAPE inputShape = WING;                              // Arrow Shape
-input ENUM_INDICATOR_TIMEFRAME inputTimeFrame = CURRENT;         // Indicator Time Frame
-input string inputIndicatorPath = "\\Developed\\Fractal STF";    // Path to the Fractal Indicator
+input int inputRadius = 2;             // Radius
+input int inputYShift = 10;            // Arrow Offset in Pixels
+input ENUM_SHAPE inputShape = WING;    // Arrow Shape
 
 // Copy inputs for possible modification during the program.
 int radius = inputRadius;
 int yShift = inputYShift;
 ENUM_SHAPE shape = inputShape;
-ENUM_TIMEFRAMES timeFrame = getTimeFrame(inputTimeFrame);
-string indicatorPath = inputIndicatorPath;
 
 int OnInit()
 {
@@ -75,17 +71,13 @@ int OnInit()
         yShift = 10;
         Print("Arrow offset cannot be a negative value. The default value 10 is used instead.");
     }
-    if(timeFrame < _Period)
-    {
-        timeFrame = ENUM_TIMEFRAMES(_Period);
-        Print("Indicator time frame cannot be smaller than the chart time frame. Chart time frame is used instead.");
-    }
 
 // Set buffer parameters for up-fractal arrows.
     SetIndexBuffer(UP_FRACTAL_ARROW, upFractalArrow);
     SetIndexLabel(UP_FRACTAL_ARROW, NULL);
     SetIndexArrow(UP_FRACTAL_ARROW, shape);
     SetIndexEmptyValue(UP_FRACTAL_ARROW, EMPTY_VALUE);
+    SetIndexDrawBegin(UP_FRACTAL_ARROW, radius);
 
 // Set buffer parameters for down-fractal arrows.
     if(shape == ARROW || shape == BOLD_ARROW || shape == HALLOW_ARROW || shape == WING)
@@ -96,16 +88,19 @@ int OnInit()
     SetIndexLabel(DOWN_FRACTAL_ARROW, NULL);
     SetIndexArrow(DOWN_FRACTAL_ARROW, shape);
     SetIndexEmptyValue(DOWN_FRACTAL_ARROW, EMPTY_VALUE);
+    SetIndexDrawBegin(DOWN_FRACTAL_ARROW, radius);
 
 // Set buffer parameters for up-fractals.
     SetIndexBuffer(UP_FRACTAL, upFractal);
     SetIndexLabel(UP_FRACTAL, "Fractal-Up(" + string(radius) + ")");
     SetIndexEmptyValue(UP_FRACTAL, EMPTY_VALUE);
+    SetIndexDrawBegin(UP_FRACTAL, radius);
 
 // Set buffer parameters for up-fractals.
     SetIndexBuffer(DOWN_FRACTAL, downFractal);
     SetIndexLabel(DOWN_FRACTAL, "Fractal-Down(" + string(radius) + ")");
     SetIndexEmptyValue(DOWN_FRACTAL, EMPTY_VALUE);
+    SetIndexDrawBegin(DOWN_FRACTAL, radius);
 
 // Set a short name for the indicator.
     IndicatorSetString(INDICATOR_SHORTNAME, "Fractal(" + string(radius) + ")" );
@@ -128,7 +123,7 @@ int OnCalculate(const int ratesTotal,
                 const int & spread[])
 {
 // Check for the minimum number of bars required for calculation.
-    if(iBars(_Symbol, timeFrame) < (2 * radius + 1))
+    if(ratesTotal < (2 * radius + 1))
     {
         return 0;
     }
@@ -140,26 +135,25 @@ int OnCalculate(const int ratesTotal,
     int newBars = ratesTotal - prevCalculated;
 
 // Find the range of bar indices for calculation assuming a timeseries indexing direction.
-    int oldestBar = (newBars <= 1) ? newBars : (ratesTotal - 1);
-    int newestBar = 0;
+    int oldestBar = (newBars <= 1) ? radius : (ratesTotal - 1) - radius;
+    int newestBar = radius;
 
 // Carry out indicator calculations.
     for(int bar = newestBar; bar <= oldestBar; bar++)
     {
-        int timeFrameBar = iBarShift(_Symbol, timeFrame, Time[bar]);
-        upFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, UP_FRACTAL, timeFrameBar);
-        upFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, UP_FRACTAL_ARROW, timeFrameBar);
-        if(upFractal[bar] != High[bar])
+        upFractal[bar] = EMPTY_VALUE;
+        upFractalArrow[bar] = EMPTY_VALUE;
+        if(isUpFractal(bar, radius))
         {
-            upFractal[bar] = EMPTY_VALUE;
-            upFractalArrow[bar] = EMPTY_VALUE;
+            upFractalArrow[bar] = High[bar] + yShiftToPriceShift(yShift);
+            upFractal[bar] = High[bar];
         }
-        downFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, DOWN_FRACTAL, timeFrameBar);
-        downFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, DOWN_FRACTAL_ARROW, timeFrameBar);
-        if(downFractal[bar] != Low[bar])
+        downFractal[bar] = EMPTY_VALUE;
+        downFractalArrow[bar] = EMPTY_VALUE;
+        if(isDownFractal(bar, radius))
         {
-            downFractal[bar] = EMPTY_VALUE;
-            downFractalArrow[bar] = EMPTY_VALUE;
+            downFractalArrow[bar] = Low[bar] - yShiftToPriceShift(yShift + 1);
+            downFractal[bar] = Low[bar];
         }
     }
     onCalculateFirstCall = false;
