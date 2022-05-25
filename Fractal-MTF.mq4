@@ -53,26 +53,25 @@ input int inputRadius = 2;                                       // Radius
 input int inputYShift = 10;                                      // Arrow Offset in Pixels
 input ENUM_SHAPE inputShape = WING;                              // Arrow Shape
 input ENUM_INDICATOR_TIMEFRAME inputTimeFrame = CURRENT;         // Indicator Time Frame
-input string inputIndicatorPath = "Developed\\Fractal-STF";      // Path to the Fractal Indicator
 
 // Copy inputs for possible modification during the program.
 int radius = inputRadius;
-int yShift = inputYShift;
+int YShift = inputYShift;
 ENUM_SHAPE shape = inputShape;
 ENUM_TIMEFRAMES timeFrame = getTimeFrame(inputTimeFrame);
-string indicatorPath = inputIndicatorPath;
+string indicatorPath = getRelativePath();
 
 int OnInit()
 {
-// Check validity of the radius and the vertical shift.
+// Check validity of the radius and the Y shift.
     if(radius < 1)
     {
         radius = 2;
         Print("Radius cannot be smaller than 1. The default value 2 is used instead.");
     }
-    if(yShift < 0)
+    if(YShift < 0)
     {
-        yShift = 10;
+        YShift = 10;
         Print("Arrow offset cannot be a negative value. The default value 10 is used instead.");
     }
     if(timeFrame < _Period)
@@ -147,15 +146,15 @@ int OnCalculate(const int ratesTotal,
     for(int bar = newestBar; bar <= oldestBar; bar++)
     {
         int timeFrameBar = iBarShift(_Symbol, timeFrame, Time[bar]);
-        upFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, UP_FRACTAL, timeFrameBar);
-        upFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, UP_FRACTAL_ARROW, timeFrameBar);
+        upFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, YShift, shape, UP_FRACTAL, timeFrameBar);
+        upFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, YShift, shape, UP_FRACTAL_ARROW, timeFrameBar);
         if(upFractal[bar] != High[bar])
         {
             upFractal[bar] = EMPTY_VALUE;
             upFractalArrow[bar] = EMPTY_VALUE;
         }
-        downFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, DOWN_FRACTAL, timeFrameBar);
-        downFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, yShift, shape, DOWN_FRACTAL_ARROW, timeFrameBar);
+        downFractal[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, YShift, shape, DOWN_FRACTAL, timeFrameBar);
+        downFractalArrow[bar] = iCustom(_Symbol, timeFrame, indicatorPath, radius, YShift, shape, DOWN_FRACTAL_ARROW, timeFrameBar);
         if(downFractal[bar] != Low[bar])
         {
             downFractal[bar] = EMPTY_VALUE;
@@ -173,6 +172,17 @@ void OnChartEvent(const int id, const long & lparam, const double & dparam, cons
 {
     if(id == CHARTEVENT_CHART_CHANGE && onCalculateFirstCall == false)
     {
-        adjustArrowOffset(yShift, upFractalArrow, downFractalArrow, upFractal, downFractal);
+        adjustArrowOffset(YShift, upFractalArrow, downFractalArrow, upFractal, downFractal);
     }
+}
+
+string getRelativePath()
+{
+    string currentWorkingDirectory = __PATH__;
+    string relativeTo = "MQL4\\Indicators";
+    int startPosition = StringFind(currentWorkingDirectory, relativeTo) + StringLen(relativeTo) + 1;
+    int endPosition = StringLen(currentWorkingDirectory) - 1;
+    int relativePathLength = endPosition - startPosition + 1;
+    string relativePath = StringSubstr(currentWorkingDirectory, startPosition, relativePathLength - 4 - 3) + "STF";
+    return relativePath;
 }

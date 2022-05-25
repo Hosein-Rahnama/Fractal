@@ -1,12 +1,12 @@
 # Fractal
-This is a technical indicator used for identifying extremums of different degrees.
+This is a technical indicator used for identifying extrema of different degrees.
 
 # Contribution
 You can contribute to the source code on GitHub by opening new issues or making pull requests. You are also welcomed to comment below [**this post**][1] on `mql5.com` for reporting bugs, or suggesting any further improvement that you may find useful.
 
 # Installation
 
-Run MetaTrader and navigate to your MetaTrader data folder through the menu bar by selecting `File -> Open Data Folder`. Copy `Fractal-Utilities.mqh` into `MQL4\Include` folder, and copy `Fractal-STF.mq4` and `Fractal-MTF.mq4` into `MQL4\Indicators` folder. Compile `Fractal-STF.mq4` and `Fractal-MTF.mq4`, respectively. Note that the path to the `Fractal-STF.ex4`, the compiled code for `Fractal-STF.mq4`, should be given in the inputs of Fractal-MTF indicator. If you put both `Fractal-STF.mq4` and `Fractal-MTF.mq4` into the default `MQL4\Indicators` directory, then set this input as Fractal-STF. However, if you put them into a subdirectory like `MQL4\Indicators\Developed` then set the path to `\Developed\Fractal-STF` as shown in **Figure 2**.
+Run MetaTrader and navigate to your MetaTrader data folder through the menu bar by selecting `File -> Open Data Folder`. Copy `Fractal-Utilities.mqh` into `MQL4\Include` folder, and copy `Fractal-STF.mq4` and `Fractal-MTF.mq4` into `MQL4\Indicators` folder. The final step is to compile `Fractal-STF.mq4` and `Fractal-MTF.mq4` via MetaEditor to create `Fractal-STF.ex4` and `Fractal-MTF.ex4`, respectively. Now, you should be able to use the Fractal-MTF indicator within MetaTrader terminal. The only requirement for installation is to put both `Fractal-STF.mq4` and `Fractal-MTF.mq4` into the same directory, which can be any subdirectory of `MQL4\Indicators` like `MQL4\Indicators\Developed`. Note that whenever you relocate the compiled files to another directory, you should recompile them in that directory to get them working.
 
 # Description
 There is a built-in fractal indicator in MT4/MT5, whose origins goes back to the famous Bill Williams. The main purpose of this indicator is to identify a local extremum by comparing a candle's high/low with that of its neighboring candles to justify it as an up-fractal/down-fractal, a term coined by Williams instead of local maximum/minimum. Some other equivalent terms are swing high/low and top/bottom, which are used among traders interchangeably.
@@ -33,5 +33,5 @@ This indicator has the following advantages over its built-in MT4/MT5  counterpa
 
 [1]: https://www.mql5.com/en/code/35575
 [2]: https://www.forexfactory.com/thread/456946-perfect-placing-of-arrows-on-the-chart
-[3]: https://c.mql5.com/18/99/1__6.png
-[4]: https://c.mql5.com/18/102/Capture__2.PNG
+[3]: https://c.mql5.com/18/104/Chart.png
+[4]: https://c.mql5.com/18/104/Inputs.png

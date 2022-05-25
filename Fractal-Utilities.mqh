@@ -5,8 +5,6 @@
 #property link "https://www.mql5.com/en/users/hosein.rahnama"
 #property version "1.3"
 
-#property strict
-
 enum ENUM_SHAPE
 {
     ARROW = 226,           // Arrow
@@ -79,6 +77,8 @@ ENUM_TIMEFRAMES getTimeFrame(ENUM_INDICATOR_TIMEFRAME inputTimeFrame)
     return timeFrame;
 }
 
+string getRelativePath();
+
 bool isUpFractal(const int bar, const double radius)
 {
     for(int adjacentBar = 1; adjacentBar <= radius; adjacentBar++)
@@ -103,23 +103,23 @@ bool isDownFractal(const int bar, const double radius)
     return true;
 }
 
-double yShiftToPriceShift(const int yShift)
+double YShiftToPriceShift(const int YShift)
 {
     int oldestVisibleBar = WindowFirstVisibleBar();
-    int xStart;
-    int yStart;
-    ChartTimePriceToXY(0, 0, Time[oldestVisibleBar], Close[oldestVisibleBar], xStart, yStart);
+    int XStart;
+    int YStart;
+    ChartTimePriceToXY(0, 0, Time[oldestVisibleBar], Close[oldestVisibleBar], XStart, YStart);
 
     int subWindow;
     datetime timeEnd;
     double priceEnd;
-    ChartXYToTimePrice(0, xStart, yStart - yShift, subWindow, timeEnd, priceEnd);
+    ChartXYToTimePrice(0, XStart, YStart - YShift, subWindow, timeEnd, priceEnd);
 
     double priceShift = priceEnd - Close[oldestVisibleBar];
     return priceShift;
 }
 
-void adjustArrowOffset(const int yShift,
+void adjustArrowOffset(const int YShift,
                        double & upFractalArrow[],
                        double & downFractalArrow[],
                        const double & upFractal[],
@@ -136,11 +136,11 @@ void adjustArrowOffset(const int yShift,
     {
         if(upFractalArrow[bar] != EMPTY_VALUE)
         {
-            upFractalArrow[bar] = upFractal[bar] + yShiftToPriceShift(yShift);
+            upFractalArrow[bar] = upFractal[bar] + YShiftToPriceShift(YShift);
         }
         if(downFractalArrow[bar] != EMPTY_VALUE)
         {
-            downFractalArrow[bar] = downFractal[bar] - yShiftToPriceShift(yShift + 1);
+            downFractalArrow[bar] = downFractal[bar] - YShiftToPriceShift(YShift + 1);
         }
     }
 }

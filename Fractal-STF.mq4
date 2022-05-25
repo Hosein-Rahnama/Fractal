@@ -55,7 +55,7 @@ input ENUM_SHAPE inputShape = WING;    // Arrow Shape
 
 // Copy inputs for possible modification during the program.
 int radius = inputRadius;
-int yShift = inputYShift;
+int YShift = inputYShift;
 ENUM_SHAPE shape = inputShape;
 
 int OnInit()
@@ -66,9 +66,9 @@ int OnInit()
         radius = 2;
         Print("Radius cannot be smaller than 1. The default value 2 is used instead.");
     }
-    if(yShift < 0)
+    if(YShift < 0)
     {
-        yShift = 10;
+        YShift = 10;
         Print("Arrow offset cannot be a negative value. The default value 10 is used instead.");
     }
 
@@ -145,14 +145,14 @@ int OnCalculate(const int ratesTotal,
         upFractalArrow[bar] = EMPTY_VALUE;
         if(isUpFractal(bar, radius))
         {
-            upFractalArrow[bar] = High[bar] + yShiftToPriceShift(yShift);
+            upFractalArrow[bar] = High[bar] + YShiftToPriceShift(YShift);
             upFractal[bar] = High[bar];
         }
         downFractal[bar] = EMPTY_VALUE;
         downFractalArrow[bar] = EMPTY_VALUE;
         if(isDownFractal(bar, radius))
         {
-            downFractalArrow[bar] = Low[bar] - yShiftToPriceShift(yShift + 1);
+            downFractalArrow[bar] = Low[bar] - YShiftToPriceShift(YShift + 1);
             downFractal[bar] = Low[bar];
         }
     }
@@ -167,6 +167,6 @@ void OnChartEvent(const int id, const long & lparam, const double & dparam, cons
 {
     if(id == CHARTEVENT_CHART_CHANGE && onCalculateFirstCall == false)
     {
-        adjustArrowOffset(yShift, upFractalArrow, downFractalArrow, upFractal, downFractal);
+        adjustArrowOffset(YShift, upFractalArrow, downFractalArrow, upFractal, downFractal);
     }
 }
